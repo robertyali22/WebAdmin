@@ -19,5 +19,5 @@ export const getEstadoInventario = () => axios.get(`${api}/productos/estado-inve
 
 export const getProductosPorCategoria = () => axios.get(`${api}/productos/productos-por-categoria`);
 
-const api = 'https://mi-backend.render.com/api';
+
 

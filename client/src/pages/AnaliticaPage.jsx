@@ -1,13 +1,50 @@
 import { SideBar } from '../components/Sidebar'
 import { Package, DollarSign, Users, CreditCard, TrendingUp } from 'lucide-react';
-
+import { useState, useEffect } from "react";
 import { EstadoInventario } from "../charts/EstadoInventario";
-
+import { getAllTiendas } from "../api/TiendaRequest";
+import { getAllProductos } from "../api/ProductoRequest";
 import { ProductosPorCategoria } from "../charts/ProductosPorCategoria";
 
 
 export function AnaliticaPage() {
+  const [totalTiendas, setTotalTiendas] = useState(0);
+  const [totalCategorias, setTotalCategorias] = useState(0);
+  const [ventas, setVentas] = useState(0);
+  const [ingresos, setIngresos] = useState(0);
 
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const tiendasRes = await getAllTiendas();
+        const productosRes = await getAllProductos();
+
+        // Total de tiendas
+        setTotalTiendas(tiendasRes.data.length);
+
+        // Total de categorías únicas
+        const categoriasUnicas = new Set(productosRes.data.map(producto => producto.categoria));
+        setTotalCategorias(categoriasUnicas.size);
+
+        // Ventas: Suma de cantidad_vendida de todos los productos
+        const totalVentas = productosRes.data.reduce((sum, producto) => {
+          return sum + producto.cantidad_vendida;
+        }, 0);
+        setVentas(totalVentas);
+
+        // Total de ingresos menos 25%
+        const totalPedidosPagados = productosRes.data.reduce((sum, producto) => {
+          return sum + (producto.cantidad_vendida * producto.precio);
+        }, 0);
+        const ingresosNetos = totalPedidosPagados * 0.75; // Descontar el 25%
+        setIngresos(ingresosNetos);
+
+      } catch (error) {
+        console.error("Error al cargar datos:", error);
+      }
+    }
+    loadData();
+  }, []);
   
   return (
     <>
@@ -27,7 +64,7 @@ export function AnaliticaPage() {
                 </p>
               </div>
               <div className="bg-blue-100/50 p-4 rounded-lg  mx-auto">
-                <p className="text-3xl font-bold text-blue-500">25</p>
+                <p className="text-3xl font-bold text-blue-500">{totalTiendas}</p>
                 <span className="mt-2 flex w-fit items-center gap-x-2 rounded-full border border-blue-500 px-2 py-1 text-sm font-medium text-blue-500">
                   <TrendingUp size={18} />
                   25%
@@ -43,11 +80,11 @@ export function AnaliticaPage() {
                   <DollarSign size={26} />
                 </div>
                 <p className="text-sm font-medium text-gray-800">
-                  
+                  Ingresos de la empresa
                 </p>
               </div>
               <div className="bg-blue-100/50 p-4 rounded-lg  mx-auto">
-                <p className="text-3xl font-bold text-blue-500">$16,000</p>
+                <p className="text-3xl font-bold text-blue-500">S/{ingresos.toFixed(2)}</p>
                 <span className="mt-2 flex w-fit items-center gap-x-2 rounded-full border border-blue-500 px-2 py-1 text-sm font-medium text-blue-500">
                   <TrendingUp size={18} />
                   12%
@@ -66,7 +103,7 @@ export function AnaliticaPage() {
                 </p>
               </div>
               <div className="bg-blue-100/50 p-4 rounded-lg  mx-auto">
-                <p className="text-3xl font-bold text-blue-500">15,400k</p>
+                <p className="text-3xl font-bold text-blue-500">{totalCategorias}</p>
                 <span className="mt-2 flex w-fit items-center gap-x-2 rounded-full border border-blue-500 px-2 py-1 text-sm font-medium text-blue-500">
                   <TrendingUp size={18} />
                   15%
@@ -85,7 +122,7 @@ export function AnaliticaPage() {
                 </p>
               </div>
               <div className="bg-blue-100/50 p-4 rounded-lg  mx-auto">
-                <p className="text-3xl font-bold text-blue-500">12,340</p>
+                <p className="text-3xl font-bold text-blue-500">{ventas}</p>
                 <span className="mt-2 flex w-fit items-center gap-x-2 rounded-full border border-blue-500 px-2 py-1 text-sm font-medium text-blue-500">
                   <TrendingUp size={18} />
                   19%

@@ -13,3 +13,4 @@ export const createCliente = (cliente) => axios.post(`${api}/clientes/clientes/`
 export const deleteCliente = (id) => axios.delete(`${api}/clientes/clientes/${id}`)
 
 export const updateCliente = (id, cliente) => axios.put(`${api}/clientes/clientes/${id}`, cliente)
+const api = 'https://mi-backend.render.com/api';
